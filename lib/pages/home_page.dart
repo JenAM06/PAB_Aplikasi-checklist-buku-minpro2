@@ -1,20 +1,43 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/book.dart';
-import '../models/book_provider.dart';
+import '../providers/book_provider.dart';
+import '../providers/theme_provider.dart';
 import 'detail_page.dart';
 import 'form_page.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
   @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() {
+      context.read<BookProvider>().fetchBooks();
+    });
+  }
+
+  Future<void> _logout() async {
+    await Supabase.instance.client.auth.signOut();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final books = context.watch<BookProvider>().books;
+    final provider = context.watch<BookProvider>();
+    final themeProvider = context.watch<ThemeProvider>();
+    final scheme = Theme.of(context).colorScheme;
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color(0xFF1A1530),
+        backgroundColor: scheme.surface,
+        elevation: 1,
+        shadowColor: scheme.onSurface.withValues(alpha: 0.08),
         title: const Text(
           'Jeje BookShelf',
           style: TextStyle(
@@ -24,36 +47,24 @@ class HomePage extends StatelessWidget {
           ),
         ),
         actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 12),
-            child: Center(
-              child: Text(
-                '${books.length} buku',
-                style: const TextStyle(color: Colors.white54, fontSize: 13),
-              ),
+          IconButton(
+            icon: Icon(
+              themeProvider.isDark ? Icons.light_mode : Icons.dark_mode,
+              color: scheme.primary,
             ),
+            onPressed: () => context.read<ThemeProvider>().toggleTheme(),
+          ),
+          IconButton(
+            icon: Icon(Icons.logout, color: scheme.primary),
+            onPressed: _logout,
           ),
         ],
       ),
 
-      body: books.isEmpty
-          ? const Center(
-              child: Text(
-                'Belum ada buku.\nTambahkan buku pertamamu!',
-                textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.white38, fontSize: 16),
-              ),
-            )
-          : ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: books.length,
-              itemBuilder: (context, index) {
-                return _BookCard(book: books[index]);
-              },
-            ),
+      body: _buildBody(provider, scheme),
 
       floatingActionButton: FloatingActionButton.extended(
-        backgroundColor: const Color(0xFF9B6BFF),
+        backgroundColor: scheme.primary,
         onPressed: () => Navigator.push(
           context,
           MaterialPageRoute(builder: (_) => const FormPage()),
@@ -66,9 +77,76 @@ class HomePage extends StatelessWidget {
       ),
     );
   }
+
+  Widget _buildBody(BookProvider provider, ColorScheme scheme) {
+    if (provider.isLoading) {
+      return Center(child: CircularProgressIndicator(color: scheme.primary));
+    }
+
+    if (provider.errorMessage != null) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.wifi_off,
+              color: scheme.onSurface.withValues(alpha: 0.4),
+              size: 48,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              provider.errorMessage!,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: scheme.onSurface.withValues(alpha: 0.4),
+                fontSize: 14,
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextButton(
+              onPressed: () => context.read<BookProvider>().fetchBooks(),
+              child: Text('Coba Lagi', style: TextStyle(color: scheme.primary)),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (provider.books.isEmpty) {
+      return Center(
+        child: Text(
+          'Belum ada buku.\nTambahkan buku pertamamu!',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: scheme.onSurface.withValues(alpha: 0.4),
+            fontSize: 16,
+          ),
+        ),
+      );
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: provider.books.length + 1,
+      itemBuilder: (context, index) {
+        if (index == 0) {
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: Text(
+              '${provider.books.length} buku tersimpan',
+              style: TextStyle(
+                color: scheme.onSurface.withValues(alpha: 0.4),
+                fontSize: 13,
+              ),
+            ),
+          );
+        }
+        return _BookCard(book: provider.books[index - 1]);
+      },
+    );
+  }
 }
 
-// Widget kartu buku
 class _BookCard extends StatelessWidget {
   final Book book;
   const _BookCard({required this.book});
@@ -76,11 +154,23 @@ class _BookCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final double progress = book.progress;
+    final scheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Card(
-      color: const Color(0xFF1A1530),
+      color: scheme.surface,
       margin: const EdgeInsets.only(bottom: 12),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      elevation: isDark ? 0 : 2,
+      shadowColor: scheme.onSurface.withValues(alpha: 0.08),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: isDark
+            ? BorderSide.none
+            : BorderSide(
+                color: scheme.onSurface.withValues(alpha: 0.08),
+                width: 1,
+              ),
+      ),
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
         onTap: () => Navigator.push(
@@ -92,7 +182,6 @@ class _BookCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Baris atas: Judul + tombol hapus
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -102,8 +191,8 @@ class _BookCard extends StatelessWidget {
                       children: [
                         Text(
                           book.title,
-                          style: const TextStyle(
-                            color: Colors.white,
+                          style: TextStyle(
+                            color: scheme.onSurface,
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                           ),
@@ -111,8 +200,8 @@ class _BookCard extends StatelessWidget {
                         const SizedBox(height: 4),
                         Text(
                           book.author,
-                          style: const TextStyle(
-                            color: Colors.white54,
+                          style: TextStyle(
+                            color: scheme.onSurface.withValues(alpha: 0.5),
                             fontSize: 13,
                           ),
                         ),
@@ -120,9 +209,9 @@ class _BookCard extends StatelessWidget {
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(
+                    icon: Icon(
                       Icons.delete_outline,
-                      color: Colors.white30,
+                      color: scheme.onSurface.withValues(alpha: 0.3),
                       size: 20,
                     ),
                     onPressed: () => _konfirmasiHapus(context),
@@ -134,7 +223,6 @@ class _BookCard extends StatelessWidget {
 
               const SizedBox(height: 10),
 
-              // Chips genre + Rating
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -150,16 +238,19 @@ class _BookCard extends StatelessWidget {
                                 vertical: 4,
                               ),
                               decoration: BoxDecoration(
-                                color: const Color(
-                                  0xFF9B6BFF,
-                                ).withValues(alpha: 0.15),
+                                color: scheme.primary.withValues(alpha: 0.12),
                                 borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                  color: scheme.primary.withValues(alpha: 0.3),
+                                  width: 1,
+                                ),
                               ),
                               child: Text(
                                 g,
-                                style: const TextStyle(
-                                  color: Color(0xFF9B6BFF),
+                                style: TextStyle(
+                                  color: scheme.primary,
                                   fontSize: 11,
+                                  fontWeight: FontWeight.w500,
                                 ),
                               ),
                             ),
@@ -181,7 +272,6 @@ class _BookCard extends StatelessWidget {
                 ],
               ),
 
-              // Progress bar
               if (book.totalPages > 0) ...[
                 const SizedBox(height: 10),
                 Row(
@@ -189,16 +279,17 @@ class _BookCard extends StatelessWidget {
                   children: [
                     Text(
                       'Hal. ${book.currentPage} / ${book.totalPages}',
-                      style: const TextStyle(
-                        color: Colors.white38,
+                      style: TextStyle(
+                        color: scheme.onSurface.withValues(alpha: 0.5),
                         fontSize: 11,
                       ),
                     ),
                     Text(
                       '${(progress * 100).toStringAsFixed(0)}%',
-                      style: const TextStyle(
-                        color: Color(0xFF6BFFD8),
+                      style: TextStyle(
+                        color: scheme.primary,
                         fontSize: 11,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ],
@@ -209,8 +300,8 @@ class _BookCard extends StatelessWidget {
                   child: LinearProgressIndicator(
                     value: progress,
                     minHeight: 5,
-                    backgroundColor: Colors.white10,
-                    valueColor: const AlwaysStoppedAnimation(Color(0xFF6BFFD8)),
+                    backgroundColor: scheme.onSurface.withValues(alpha: 0.1),
+                    valueColor: AlwaysStoppedAnimation(scheme.primary),
                   ),
                 ),
               ],
@@ -222,19 +313,23 @@ class _BookCard extends StatelessWidget {
   }
 
   void _konfirmasiHapus(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        backgroundColor: const Color(0xFF1A1530),
-        title: const Text('Hapus Buku?', style: TextStyle(color: Colors.white)),
+        backgroundColor: scheme.surface,
+        title: Text('Hapus Buku?', style: TextStyle(color: scheme.onSurface)),
         content: Text(
           'Yakin ingin menghapus "${book.title}"?',
-          style: const TextStyle(color: Colors.white70),
+          style: TextStyle(color: scheme.onSurface.withValues(alpha: 0.7)),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Batal', style: TextStyle(color: Colors.white54)),
+            child: Text(
+              'Batal',
+              style: TextStyle(color: scheme.onSurface.withValues(alpha: 0.5)),
+            ),
           ),
           TextButton(
             onPressed: () {

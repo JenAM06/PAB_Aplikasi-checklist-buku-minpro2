@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../models/book.dart';
-import '../models/book_provider.dart';
+import '../providers/book_provider.dart';
 
 class FormPage extends StatefulWidget {
   final Book? bookToEdit;
@@ -24,6 +24,7 @@ class _FormPageState extends State<FormPage> {
 
   List<String> _genres = [];
   double _rating = 0;
+  bool _isSaving = false;
 
   bool get _isEditing => widget.bookToEdit != null;
 
@@ -69,48 +70,35 @@ class _FormPageState extends State<FormPage> {
     });
   }
 
-  void _simpan() {
+  Future<void> _simpan() async {
     if (!_formKey.currentState!.validate()) return;
 
-    // Validasi genre tidak boleh kosong
     if (_genres.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Tambahkan minimal satu genre!'),
-          backgroundColor: Colors.redAccent,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
-      );
+      _showSnackbar('Tambahkan minimal satu genre!', isError: true);
       return;
     }
 
-    // Parse halaman sekali, pakai ulang di bawah
     final total = int.tryParse(_totalPagesCtrl.text) ?? 0;
     final current = int.tryParse(_currentPageCtrl.text) ?? 0;
 
-    // Validasi halaman tidak boleh melebihi total
-    if (total > 0 && current > total) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Halaman tidak boleh melebihi total halaman!'),
-          backgroundColor: Colors.redAccent,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
+    if (total <= 0) {
+      _showSnackbar('Total halaman wajib diisi!', isError: true);
+      return;
+    }
+
+    if (current > total) {
+      _showSnackbar(
+        'Halaman sekarang tidak boleh melebihi total halaman!',
+        isError: true,
       );
       return;
     }
 
+    setState(() => _isSaving = true);
+
     final provider = context.read<BookProvider>();
     final book = Book(
-      id: _isEditing
-          ? widget.bookToEdit!.id
-          : DateTime.now().millisecondsSinceEpoch.toString(),
+      id: _isEditing ? widget.bookToEdit!.id : '',
       title: _titleCtrl.text.trim(),
       author: _authorCtrl.text.trim(),
       genres: List<String>.from(_genres),
@@ -121,20 +109,26 @@ class _FormPageState extends State<FormPage> {
     );
 
     if (_isEditing) {
-      provider.updateBook(book);
+      await provider.updateBook(book);
     } else {
-      provider.addBook(book);
+      await provider.addBook(book);
     }
 
+    if (!mounted) return;
+    setState(() => _isSaving = false);
+
     Navigator.pop(context);
+    _showSnackbar(
+      _isEditing ? 'Buku berhasil diperbarui!' : 'Buku berhasil ditambahkan!',
+    );
+  }
+
+  void _showSnackbar(String message, {bool isError = false}) {
+    final scheme = Theme.of(context).colorScheme;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(
-          _isEditing
-              ? 'Buku berhasil diperbarui!'
-              : 'Buku berhasil ditambahkan!',
-        ),
-        backgroundColor: const Color(0xFF9B6BFF),
+        content: Text(message),
+        backgroundColor: isError ? Colors.redAccent : scheme.primary,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
@@ -143,17 +137,19 @@ class _FormPageState extends State<FormPage> {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color(0xFF1A1530),
+        backgroundColor: scheme.surface,
         title: Text(
           _isEditing ? 'Edit Buku' : 'Tambah Buku',
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: scheme.onSurface,
             fontWeight: FontWeight.bold,
           ),
         ),
-        iconTheme: const IconThemeData(color: Colors.white),
+        iconTheme: IconThemeData(color: scheme.onSurface),
       ),
       body: Form(
         key: _formKey,
@@ -161,60 +157,66 @@ class _FormPageState extends State<FormPage> {
           padding: const EdgeInsets.all(20),
           children: [
             // TextField 1: Judul
-            _buildLabel('Judul Buku'),
+            _buildLabel('Judul Buku', scheme),
             _buildTextField(
               controller: _titleCtrl,
               hint: 'Contoh: Laskar Pelangi',
               icon: Icons.title,
+              scheme: scheme,
               validator: (v) =>
                   v == null || v.trim().isEmpty ? 'Judul wajib diisi' : null,
             ),
             const SizedBox(height: 16),
 
             // TextField 2: Penulis
-            _buildLabel('Penulis'),
+            _buildLabel('Penulis', scheme),
             _buildTextField(
               controller: _authorCtrl,
               hint: 'Contoh: Andrea Hirata',
               icon: Icons.person_outline,
+              scheme: scheme,
               validator: (v) =>
                   v == null || v.trim().isEmpty ? 'Penulis wajib diisi' : null,
             ),
             const SizedBox(height: 16),
 
             // TextField 3: Genre (tag input)
-            _buildLabel('Genre'),
+            _buildLabel('Genre', scheme),
             Row(
               children: [
                 Expanded(
                   child: TextFormField(
                     controller: _genreInputCtrl,
-                    style: const TextStyle(color: Colors.white),
+                    style: TextStyle(color: scheme.onSurface),
                     onFieldSubmitted: (_) => _tambahGenre(),
                     decoration: InputDecoration(
                       hintText: 'Ketik genre, lalu tekan +',
-                      hintStyle: const TextStyle(
-                        color: Colors.white30,
+                      hintStyle: TextStyle(
+                        color: scheme.onSurface.withValues(alpha: 0.3),
                         fontSize: 14,
                       ),
-                      prefixIcon: const Icon(
+                      prefixIcon: Icon(
                         Icons.category_outlined,
-                        color: Color(0xFF9B6BFF),
+                        color: scheme.primary,
                         size: 20,
                       ),
                       filled: true,
-                      fillColor: const Color(0xFF1A1530),
+                      fillColor: scheme.surface,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Colors.white12),
+                        borderSide: BorderSide(
+                          color: scheme.onSurface.withValues(alpha: 0.1),
+                        ),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Colors.white12),
+                        borderSide: BorderSide(
+                          color: scheme.onSurface.withValues(alpha: 0.1),
+                        ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Color(0xFF9B6BFF)),
+                        borderSide: BorderSide(color: scheme.primary),
                       ),
                     ),
                   ),
@@ -226,7 +228,7 @@ class _FormPageState extends State<FormPage> {
                     width: 48,
                     height: 48,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF9B6BFF),
+                      color: scheme.primary,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: const Icon(Icons.add, color: Colors.white),
@@ -244,22 +246,17 @@ class _FormPageState extends State<FormPage> {
                       (g) => Chip(
                         label: Text(
                           g,
-                          style: const TextStyle(
-                            color: Colors.white,
+                          style: TextStyle(
+                            color: scheme.onSurface,
                             fontSize: 12,
                           ),
                         ),
-                        backgroundColor: const Color(
-                          0xFF9B6BFF,
-                        ).withValues(alpha: 0.2),
-                        side: const BorderSide(
-                          color: Color(0xFF9B6BFF),
-                          width: 1,
-                        ),
-                        deleteIcon: const Icon(
+                        backgroundColor: scheme.primary.withValues(alpha: 0.2),
+                        side: BorderSide(color: scheme.primary, width: 1),
+                        deleteIcon: Icon(
                           Icons.close,
                           size: 14,
-                          color: Colors.white54,
+                          color: scheme.onSurface.withValues(alpha: 0.5),
                         ),
                         onDeleted: () => setState(() => _genres.remove(g)),
                         materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -270,7 +267,7 @@ class _FormPageState extends State<FormPage> {
             const SizedBox(height: 20),
 
             // TextField 4 & 5: Halaman
-            _buildLabel('Halaman'),
+            _buildLabel('Halaman', scheme),
             Row(
               children: [
                 Expanded(
@@ -278,6 +275,7 @@ class _FormPageState extends State<FormPage> {
                     controller: _totalPagesCtrl,
                     hint: 'Total halaman',
                     icon: Icons.book_outlined,
+                    scheme: scheme,
                     keyboardType: TextInputType.number,
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   ),
@@ -286,8 +284,9 @@ class _FormPageState extends State<FormPage> {
                 Expanded(
                   child: _buildTextField(
                     controller: _currentPageCtrl,
-                    hint: 'Halaman terakhir yang dibaca',
-                    icon: Icons.book_outlined,
+                    hint: 'Halaman ke-',
+                    icon: Icons.my_location_outlined,
+                    scheme: scheme,
                     keyboardType: TextInputType.number,
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   ),
@@ -297,7 +296,7 @@ class _FormPageState extends State<FormPage> {
             const SizedBox(height: 20),
 
             // Rating Bintang
-            _buildLabel('Rating'),
+            _buildLabel('Rating', scheme),
             Row(
               children: List.generate(5, (i) {
                 return GestureDetector(
@@ -316,22 +315,26 @@ class _FormPageState extends State<FormPage> {
             const SizedBox(height: 20),
 
             // TextField 6: Catatan
-            _buildLabel('Catatan / Ulasan'),
+            _buildLabel('Catatan / Ulasan', scheme),
             Container(
               decoration: BoxDecoration(
-                color: const Color(0xFF1A1530),
+                color: scheme.surface,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.white12),
+                border: Border.all(
+                  color: scheme.onSurface.withValues(alpha: 0.1),
+                ),
               ),
               child: TextFormField(
                 controller: _notesCtrl,
                 maxLines: 4,
-                style: const TextStyle(color: Colors.white),
-                decoration: const InputDecoration(
+                style: TextStyle(color: scheme.onSurface),
+                decoration: InputDecoration(
                   hintText: 'Tulis ulasan atau catatan...',
-                  hintStyle: TextStyle(color: Colors.white30),
+                  hintStyle: TextStyle(
+                    color: scheme.onSurface.withValues(alpha: 0.3),
+                  ),
                   border: InputBorder.none,
-                  contentPadding: EdgeInsets.all(14),
+                  contentPadding: const EdgeInsets.all(14),
                 ),
               ),
             ),
@@ -341,21 +344,33 @@ class _FormPageState extends State<FormPage> {
             SizedBox(
               height: 52,
               child: ElevatedButton(
-                onPressed: _simpan,
+                onPressed: _isSaving ? null : _simpan,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF9B6BFF),
+                  backgroundColor: scheme.primary,
+                  disabledBackgroundColor: scheme.primary.withValues(
+                    alpha: 0.5,
+                  ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14),
                   ),
                 ),
-                child: Text(
-                  _isEditing ? 'Simpan Perubahan' : 'Tambah ke Koleksi',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                child: _isSaving
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        ),
+                      )
+                    : Text(
+                        _isEditing ? 'Simpan Perubahan' : 'Tambah ke Koleksi',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
               ),
             ),
             const SizedBox(height: 20),
@@ -365,13 +380,13 @@ class _FormPageState extends State<FormPage> {
     );
   }
 
-  Widget _buildLabel(String text) {
+  Widget _buildLabel(String text, ColorScheme scheme) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Text(
         text,
-        style: const TextStyle(
-          color: Colors.white70,
+        style: TextStyle(
+          color: scheme.onSurface.withValues(alpha: 0.7),
           fontSize: 13,
           fontWeight: FontWeight.bold,
         ),
@@ -383,6 +398,7 @@ class _FormPageState extends State<FormPage> {
     required TextEditingController controller,
     required String hint,
     required IconData icon,
+    required ColorScheme scheme,
     String? Function(String?)? validator,
     TextInputType? keyboardType,
     List<TextInputFormatter>? inputFormatters,
@@ -392,24 +408,31 @@ class _FormPageState extends State<FormPage> {
       validator: validator,
       keyboardType: keyboardType,
       inputFormatters: inputFormatters,
-      style: const TextStyle(color: Colors.white),
+      style: TextStyle(color: scheme.onSurface),
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: const TextStyle(color: Colors.white30, fontSize: 14),
-        prefixIcon: Icon(icon, color: const Color(0xFF9B6BFF), size: 20),
+        hintStyle: TextStyle(
+          color: scheme.onSurface.withValues(alpha: 0.3),
+          fontSize: 14,
+        ),
+        prefixIcon: Icon(icon, color: scheme.primary, size: 20),
         filled: true,
-        fillColor: const Color(0xFF1A1530),
+        fillColor: scheme.surface,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Colors.white12),
+          borderSide: BorderSide(
+            color: scheme.onSurface.withValues(alpha: 0.1),
+          ),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Colors.white12),
+          borderSide: BorderSide(
+            color: scheme.onSurface.withValues(alpha: 0.1),
+          ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFF9B6BFF)),
+          borderSide: BorderSide(color: scheme.primary),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),

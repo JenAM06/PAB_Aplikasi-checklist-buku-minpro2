@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../models/book_provider.dart';
+import '../providers/book_provider.dart';
 import 'form_page.dart';
+import '../models/book.dart';
 
 class DetailPage extends StatelessWidget {
   final String bookId;
@@ -9,34 +10,37 @@ class DetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final books = context.watch<BookProvider>().books;
     final bookIndex = books.indexWhere((b) => b.id == bookId);
 
-    // Jika buku sudah dihapus → kembali otomatis
     if (bookIndex == -1) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (Navigator.canPop(context)) {
-          Navigator.pop(context);
-        }
+        if (Navigator.canPop(context)) Navigator.pop(context);
       });
-
-      return const Scaffold(backgroundColor: Color(0xFF0F0B1F));
+      return Scaffold(backgroundColor: scheme.surface);
     }
 
     final book = books[bookIndex];
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0F0B1F),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF1A1530),
-        title: const Text(
+        backgroundColor: scheme.surface,
+        elevation: 1,
+        shadowColor: scheme.onSurface.withValues(alpha: 0.08),
+        title: Text(
           'Detail Buku',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            color: scheme.onSurface,
+            fontWeight: FontWeight.bold,
+          ),
         ),
-        iconTheme: const IconThemeData(color: Colors.white),
+        iconTheme: IconThemeData(color: scheme.onSurface),
         actions: [
           IconButton(
-            icon: const Icon(Icons.edit, color: Color(0xFF9B6BFF)),
+            icon: Icon(Icons.edit, color: scheme.primary),
             onPressed: () async {
               await Navigator.push(
                 context,
@@ -53,8 +57,8 @@ class DetailPage extends StatelessWidget {
           // Judul & Penulis
           Text(
             book.title,
-            style: const TextStyle(
-              color: Colors.white,
+            style: TextStyle(
+              color: scheme.onSurface,
               fontSize: 24,
               fontWeight: FontWeight.bold,
             ),
@@ -62,7 +66,10 @@ class DetailPage extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             book.author,
-            style: const TextStyle(color: Colors.white60, fontSize: 16),
+            style: TextStyle(
+              color: scheme.onSurface.withValues(alpha: 0.6),
+              fontSize: 16,
+            ),
           ),
           const SizedBox(height: 14),
 
@@ -78,14 +85,19 @@ class DetailPage extends StatelessWidget {
                       vertical: 5,
                     ),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF9B6BFF).withValues(alpha: 0.15),
+                      color: scheme.primary.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                        color: scheme.primary.withValues(alpha: 0.3),
+                        width: 1,
+                      ),
                     ),
                     child: Text(
                       g,
-                      style: const TextStyle(
-                        color: Color(0xFF9B6BFF),
+                      style: TextStyle(
+                        color: scheme.primary,
                         fontSize: 13,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ),
@@ -94,15 +106,15 @@ class DetailPage extends StatelessWidget {
           ),
 
           const SizedBox(height: 20),
-          const Divider(color: Colors.white12),
+          Divider(color: scheme.onSurface.withValues(alpha: 0.1)),
           const SizedBox(height: 16),
 
           // Progress membaca
           if (book.totalPages > 0) ...[
-            const Text(
+            Text(
               'Progress Membaca',
               style: TextStyle(
-                color: Colors.white70,
+                color: scheme.onSurface.withValues(alpha: 0.7),
                 fontSize: 13,
                 fontWeight: FontWeight.bold,
               ),
@@ -112,21 +124,24 @@ class DetailPage extends StatelessWidget {
               children: [
                 Text(
                   '${book.currentPage}',
-                  style: const TextStyle(
-                    color: Color(0xFF6BFFD8),
+                  style: TextStyle(
+                    color: scheme.primary,
                     fontSize: 26,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 Text(
                   ' / ${book.totalPages} halaman',
-                  style: const TextStyle(color: Colors.white54, fontSize: 14),
+                  style: TextStyle(
+                    color: scheme.onSurface.withValues(alpha: 0.5),
+                    fontSize: 14,
+                  ),
                 ),
                 const Spacer(),
                 Text(
                   '${(book.progress * 100).toStringAsFixed(0)}%',
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: scheme.primary,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -138,18 +153,18 @@ class DetailPage extends StatelessWidget {
               child: LinearProgressIndicator(
                 value: book.progress,
                 minHeight: 10,
-                backgroundColor: Colors.white10,
-                valueColor: const AlwaysStoppedAnimation(Color(0xFF6BFFD8)),
+                backgroundColor: scheme.onSurface.withValues(alpha: 0.1),
+                valueColor: AlwaysStoppedAnimation(scheme.primary),
               ),
             ),
             const SizedBox(height: 20),
           ],
 
           // Rating
-          const Text(
+          Text(
             'Rating',
             style: TextStyle(
-              color: Colors.white70,
+              color: scheme.onSurface.withValues(alpha: 0.7),
               fontSize: 13,
               fontWeight: FontWeight.bold,
             ),
@@ -168,7 +183,10 @@ class DetailPage extends StatelessWidget {
               const SizedBox(width: 10),
               Text(
                 book.rating > 0 ? '${book.rating.toInt()}/5' : 'Belum dirating',
-                style: const TextStyle(color: Colors.white54, fontSize: 14),
+                style: TextStyle(
+                  color: scheme.onSurface.withValues(alpha: 0.5),
+                  fontSize: 14,
+                ),
               ),
             ],
           ),
@@ -176,10 +194,10 @@ class DetailPage extends StatelessWidget {
           // Catatan
           if (book.notes.isNotEmpty) ...[
             const SizedBox(height: 20),
-            const Text(
+            Text(
               'Catatan',
               style: TextStyle(
-                color: Colors.white70,
+                color: scheme.onSurface.withValues(alpha: 0.7),
                 fontSize: 13,
                 fontWeight: FontWeight.bold,
               ),
@@ -189,24 +207,30 @@ class DetailPage extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: const Color(0xFF1A1530),
+                color: scheme.surface,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.white10),
+                border: Border.all(
+                  color: scheme.onSurface.withValues(
+                    alpha: isDark ? 0.1 : 0.15,
+                  ),
+                  width: isDark ? 1 : 1.5,
+                ),
               ),
               child: Text(
                 book.notes,
-                style: const TextStyle(color: Colors.white70, height: 1.6),
+                style: TextStyle(
+                  color: scheme.onSurface.withValues(alpha: 0.7),
+                  height: 1.6,
+                ),
               ),
             ),
           ],
 
           const SizedBox(height: 32),
 
-          // Tombol hapus dengan konfirmasi
+          // Tombol hapus
           OutlinedButton.icon(
-            onPressed: () {
-              _konfirmasiHapus(context, book);
-            },
+            onPressed: () => _konfirmasiHapus(context, book),
             style: OutlinedButton.styleFrom(
               foregroundColor: Colors.redAccent,
               side: const BorderSide(color: Colors.redAccent),
@@ -226,25 +250,29 @@ class DetailPage extends StatelessWidget {
     );
   }
 
-  void _konfirmasiHapus(BuildContext context, dynamic book) {
+  void _konfirmasiHapus(BuildContext context, Book book) {
+    final scheme = Theme.of(context).colorScheme;
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        backgroundColor: const Color(0xFF1A1530),
-        title: const Text('Hapus Buku?', style: TextStyle(color: Colors.white)),
+        backgroundColor: scheme.surface,
+        title: Text('Hapus Buku?', style: TextStyle(color: scheme.onSurface)),
         content: Text(
           'Yakin ingin menghapus "${book.title}"?',
-          style: const TextStyle(color: Colors.white70),
+          style: TextStyle(color: scheme.onSurface.withValues(alpha: 0.7)),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Batal', style: TextStyle(color: Colors.white54)),
+            child: Text(
+              'Batal',
+              style: TextStyle(color: scheme.onSurface.withValues(alpha: 0.5)),
+            ),
           ),
           TextButton(
-            onPressed: () {
-              Navigator.pop(dialogContext); // tutup dialog dulu
-              context.read<BookProvider>().deleteBook(book.id);
+            onPressed: () async {
+              Navigator.pop(dialogContext);
+              await context.read<BookProvider>().deleteBook(book.id);
             },
             child: const Text(
               'Hapus',
