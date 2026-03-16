@@ -600,7 +600,7 @@ Saat pertama membuka aplikasi, user akan diarahkan ke halaman **Login**. Jika be
 
 | Login | Register | Validasi (1)| Validasi (2)|
 |-------|---------|---------|---------|
-| <img src="https://github.com/user-attachments/assets/98009bff-2903-4e2a-8d59-6e62b9fc4fae" width="150" /> | <img src="https://github.com/user-attachments/assets/c579d19c-84a8-432a-936b-2f23517d18f8" width="150"/> | <img src="https://github.com/user-attachments/assets/84739167-dcf5-4c51-8690-2fd4536e8baf" width="150"/>| <img src="https://github.com/user-attachments/assets/a5b71d24-a39e-433b-8705-b7b1c403368b" width="150"/>|
+| <img src="https://github.com/user-attachments/assets/98009bff-2903-4e2a-8d59-6e62b9fc4fae" width="150" /> | <img src="https://github.com/user-attachments/assets/c579d19c-84a8-432a-936b-2f23517d18f8" width="150"/> | <img src="https://github.com/user-attachments/assets/84739167-dcf5-4c51-8690-2fd4536e8baf" width="150"/>| <img src="https://github.com/user-attachments/assets/4bbb3d83-02b8-4533-a05a-5e3c8722f597" width="150"/>|
 
 <details>
 <summary>Deskripsi Implementasi Widget</summary>
