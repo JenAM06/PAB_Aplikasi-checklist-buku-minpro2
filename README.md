@@ -1,8 +1,54 @@
 # JEJE BookShelf
 
+![Flutter](https://img.shields.io/badge/Flutter-02569B?style=flat&logo=flutter&logoColor=white)
+![Dart](https://img.shields.io/badge/Dart-0175C2?style=flat&logo=dart&logoColor=white)
+![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=flat&logo=supabase&logoColor=white)
+
 Aplikasi manajemen koleksi buku pribadi untuk mencatat, melacak progress membaca, dan memberikan rating pada setiap buku yang dimiliki. Data disimpan dan diambil dari database **Supabase** secara real-time.
 
 > Jen Agresia Misti | 2409116007 | A'24 | MINPRO 1 PAB
+
+---
+
+## Tech Stack
+
+| Teknologi | Kegunaan |
+|-----------|---------|
+| Flutter | Framework UI |
+| Dart | Bahasa pemrograman |
+| Supabase | Database & Auth |
+| Provider | State management |
+| flutter_dotenv | Manajemen environment variable |
+
+---
+
+## Cara Menjalankan
+
+1. Clone repository
+```bash
+   git clone https://github.com/JenAM06/PAB_Aplikasi-checklist-buku-minpro2.git
+```
+
+2. Masuk ke folder project
+```bash
+   cd PAB_Aplikasi-checklist-buku-minpro2
+```
+
+3. Buat file `.env` di root project
+```
+   SUPABASE_URL=your_supabase_url
+   SUPABASE_ANON_KEY=your_supabase_anon_key
+```
+
+4. Install dependencies
+```bash
+   flutter pub get
+```
+
+5. Jalankan aplikasi
+```bash
+   flutter run
+```
 
 ---
 
@@ -52,18 +98,6 @@ lib/
 
 ---
 
-## Widget yang Digunakan
-
-| Kategori | Widget |
-|----------|--------|
-| Tampilan | `Text`, `Icon`, `LinearProgressIndicator`, `Chip` |
-| Layout | `Scaffold`, `AppBar`, `Row`, `Column`, `Container`, `Padding`, `SizedBox`, `Expanded`, `ListView`, `ListView.builder`, `Wrap`, `Card`, `SafeArea`, `SingleChildScrollView` |
-| Interaksi | `InkWell`, `GestureDetector`, `ElevatedButton`, `OutlinedButton`, `TextButton`, `IconButton`, `FloatingActionButton.extended`, `TextFormField`, `Form`, `AlertDialog`, `SnackBar` |
-| State | `StatelessWidget`, `StatefulWidget`, `ChangeNotifierProvider`, `MultiProvider`, `StreamBuilder` |
-| Navigasi | `Navigator.push`, `Navigator.pop`, `Navigator.pushAndRemoveUntil`, `MaterialPageRoute` |
-
----
-
 ## Nilai Tambah
 
 | # | Fitur | Implementasi |
@@ -74,9 +108,19 @@ lib/
 
 ---
 
-## Home Page
+## Widget yang Digunakan
 
-> Saya jelaskan alur disini ദ്ദി◝ ⩊ ◜.ᐟ
+| Kategori | Widget |
+|----------|--------|
+| Tampilan | `Text`, `Icon`, `LinearProgressIndicator`, `Chip` |
+| Layout | `Scaffold`, `AppBar`, `Row`, `Column`, `Container`, `Padding`, `SizedBox`, `Expanded`, `ListView`, `ListView.builder`, `Wrap`, `Card`, `SafeArea`, `SingleChildScrollView` |
+| Interaksi | `InkWell`, `GestureDetector`, `ElevatedButton`, `OutlinedButton`, `TextButton`, `IconButton`, `FloatingActionButton.extended`, `TextFormField`, `Form`, `AlertDialog`, `SnackBar` |
+| State | `StatelessWidget`, `StatefulWidget`, `ChangeNotifierProvider`, `MultiProvider`, `StreamBuilder` |
+| Navigasi | `Navigator.push`, `Navigator.pop`, `MaterialPageRoute` |
+
+---
+
+## Home Page
 
 Pada tampilan awal, terdapat AppBar dengan nama aplikasi, tombol toggle tema, dan tombol logout. Jika belum ada buku, tampil pesan empty state. Klik tombol `+` **Tambah Buku** untuk membuka `Form Page` (fitur `Create`). Buku yang berhasil ditambahkan langsung muncul di daftar. Setiap kartu menampilkan judul, penulis, genre, rating, dan progress membaca. Klik ikon tong sampah untuk **hapus buku** dengan konfirmasi dialog.
 
@@ -104,13 +148,19 @@ Text(
 Menampilkan ikon interaktif. Digunakan untuk tombol hapus, edit, toggle tema, dan logout di AppBar.
 ```dart
 IconButton(
-  icon: const Icon(Icons.delete_outline, size: 20),
+  icon: Icon(
+    Icons.delete_outline,
+    color: scheme.onSurface.withValues(alpha: 0.3),
+    size: 20,
+  ),
   onPressed: () => _konfirmasiHapus(context),
+  padding: EdgeInsets.zero,
+  constraints: const BoxConstraints(),
 ),
 ```
 
 ### 3. `LinearProgressIndicator`
-Menampilkan progress membaca secara visual berupa bar horizontal. Digunakan di kartu buku (5px) dan halaman detail (10px).
+Menampilkan progress membaca secara visual berupa bar horizontal. Digunakan di kartu buku (5px) dan halaman detail (10px). Warna mengikuti tema aktif via `scheme.primary`.
 ```dart
 ClipRRect(
   borderRadius: BorderRadius.circular(4),
@@ -124,52 +174,72 @@ ClipRRect(
 ```
 
 ### 4. `Scaffold` & `AppBar`
-Kerangka utama setiap halaman. `AppBar` menampilkan judul, tombol toggle tema, dan logout di home page.
+Kerangka utama setiap halaman. `AppBar` di home page menampilkan judul aplikasi, tombol toggle tema, dan tombol logout. Menggunakan `elevation` dan `shadowColor` agar navbar terlihat di light mode.
 ```dart
 Scaffold(
   appBar: AppBar(
     backgroundColor: scheme.surface,
-    title: const Text('Jeje BookShelf'),
+    elevation: 1,
+    shadowColor: scheme.onSurface.withValues(alpha: 0.08),
+    title: const Text(
+      'Jeje BookShelf',
+      style: TextStyle(color: Color(0xFF9B6BFF), fontWeight: FontWeight.bold),
+    ),
     actions: [
-      IconButton(icon: Icon(Icons.light_mode), onPressed: () {}),
-      IconButton(icon: Icon(Icons.logout), onPressed: _logout),
+      IconButton(icon: Icon(Icons.light_mode, color: scheme.primary), onPressed: () {}),
+      IconButton(icon: Icon(Icons.logout, color: scheme.primary), onPressed: _logout),
     ],
   ),
 )
 ```
 
 ### 5. `Row`, `Column`, `Expanded`
-`Row` menyusun widget horizontal, `Column` vertikal. `Expanded` memaksa widget mengambil sisa ruang agar judul dan penulis tidak bertabrakan dengan ikon hapus.
+`Row` menyusun widget horizontal, `Column` vertikal. `Expanded` memaksa `Column` mengambil sisa ruang agar judul dan penulis tidak bertabrakan dengan ikon hapus.
 ```dart
 Row(
+  crossAxisAlignment: CrossAxisAlignment.start,
   children: [
-    Expanded(child: Column(children: [Text(book.title), Text(book.author)])),
+    Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(book.title, style: TextStyle(color: scheme.onSurface)),
+          Text(book.author, style: TextStyle(color: scheme.onSurface.withValues(alpha: 0.5))),
+        ],
+      ),
+    ),
     IconButton(icon: Icon(Icons.delete_outline), onPressed: () {}),
   ],
 )
 ```
 
 ### 6. `Container`, `Padding`, `SizedBox`
-`Container` untuk styling chip genre dengan warna, padding, dan border-radius. `SizedBox` sebagai spacer antar widget.
+`Container` untuk styling chip genre dengan warna, border, dan border-radius yang menyesuaikan tema. `SizedBox` sebagai spacer antar widget.
 ```dart
 Container(
   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
   decoration: BoxDecoration(
     color: scheme.primary.withValues(alpha: 0.12),
     borderRadius: BorderRadius.circular(8),
-    border: Border.all(color: scheme.primary.withValues(alpha: 0.3)),
+    border: Border.all(
+      color: scheme.primary.withValues(alpha: 0.3),
+      width: 1,
+    ),
   ),
-  child: Text(g, style: TextStyle(color: scheme.primary)),
+  child: Text(g, style: TextStyle(color: scheme.primary, fontSize: 11)),
 ),
 ```
 
 ### 7. `ListView.builder`
-Menampilkan daftar kartu buku yang panjangnya dinamis dan scrollable.
+Menampilkan daftar kartu buku yang panjangnya dinamis dan scrollable. Index 0 dipakai untuk header jumlah buku, index selanjutnya untuk kartu buku.
 ```dart
 ListView.builder(
+  padding: const EdgeInsets.all(16),
   itemCount: provider.books.length + 1,
   itemBuilder: (context, index) {
-    if (index == 0) return Text('${provider.books.length} buku tersimpan');
+    if (index == 0) {
+      return Text('${provider.books.length} buku tersimpan');
+    }
     return _BookCard(book: provider.books[index - 1]);
   },
 ),
@@ -186,10 +256,18 @@ Wrap(
 ```
 
 ### 9. `Card`, `InkWell`, `Navigator.push`, `MaterialPageRoute`
-`Card` membungkus konten dengan sudut melengkung dan shadow. `InkWell` membuat seluruh area kartu bisa ditekan untuk membuka `DetailPage`.
+`Card` membungkus konten kartu buku dengan `elevation` dan `border` yang menyesuaikan tema (lebih terlihat di light mode). `InkWell` membuat seluruh area kartu bisa ditekan untuk membuka `DetailPage`.
 ```dart
 Card(
   color: scheme.surface,
+  elevation: isDark ? 0 : 2,
+  shadowColor: scheme.onSurface.withValues(alpha: 0.08),
+  shape: RoundedRectangleBorder(
+    borderRadius: BorderRadius.circular(16),
+    side: isDark
+        ? BorderSide.none
+        : BorderSide(color: scheme.onSurface.withValues(alpha: 0.08)),
+  ),
   child: InkWell(
     onTap: () => Navigator.push(
       context,
@@ -201,27 +279,38 @@ Card(
 ```
 
 ### 10. `AlertDialog`, `TextButton`, `SnackBar`
-`AlertDialog` untuk konfirmasi hapus buku. `SnackBar` untuk notifikasi aksi berhasil atau gagal.
+`AlertDialog` untuk konfirmasi hapus buku. `SnackBar` untuk notifikasi aksi berhasil atau gagal. Warna mengikuti `scheme` aktif.
 ```dart
 showDialog(
   context: context,
   builder: (_) => AlertDialog(
-    title: Text('Hapus Buku?'),
+    backgroundColor: scheme.surface,
+    title: Text('Hapus Buku?', style: TextStyle(color: scheme.onSurface)),
     actions: [
-      TextButton(onPressed: () => Navigator.pop(context), child: Text('Batal')),
-      TextButton(onPressed: () { provider.deleteBook(book.id); }, child: Text('Hapus')),
+      TextButton(
+        onPressed: () => Navigator.pop(context),
+        child: Text('Batal', style: TextStyle(color: scheme.onSurface.withValues(alpha: 0.5))),
+      ),
+      TextButton(
+        onPressed: () {
+          context.read<BookProvider>().deleteBook(book.id);
+          Navigator.pop(context);
+        },
+        child: const Text('Hapus', style: TextStyle(color: Colors.redAccent)),
+      ),
     ],
   ),
 );
 ```
 
-### 11. `StatelessWidget` & `ChangeNotifierProvider`
-`HomePage` dan `_BookCard` adalah `StatelessWidget` karena tidak punya state internal. Data dari `BookProvider` diakses via `context.watch`.
+### 11. `StatefulWidget` & `ChangeNotifierProvider`
+`HomePage` menggunakan `StatefulWidget` agar bisa memanggil `fetchBooks()` di `initState`. Data dari `BookProvider` diakses via `context.watch`.
 ```dart
 class HomePage extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
-    final provider = context.watch<BookProvider>();
+  void initState() {
+    super.initState();
+    Future.microtask(() => context.read<BookProvider>().fetchBooks());
   }
 }
 ```
@@ -231,20 +320,29 @@ Tombol aksi utama di `HomePage` untuk navigasi ke halaman tambah buku.
 ```dart
 FloatingActionButton.extended(
   backgroundColor: scheme.primary,
-  onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const FormPage())),
+  onPressed: () => Navigator.push(
+    context,
+    MaterialPageRoute(builder: (_) => const FormPage()),
+  ),
   icon: const Icon(Icons.add, color: Colors.white),
-  label: const Text('Tambah Buku'),
+  label: const Text('Tambah Buku',
+      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
 ),
 ```
 
 ### 13. `StreamBuilder`
-Digunakan di `AuthGate` untuk mendengarkan perubahan status autentikasi Supabase secara real-time dan menentukan halaman yang ditampilkan.
+Digunakan di `AuthGate` untuk mendengarkan perubahan status autentikasi Supabase secara real-time dan menentukan halaman yang ditampilkan tanpa perlu `Navigator`.
 ```dart
 StreamBuilder<AuthState>(
   stream: Supabase.instance.client.auth.onAuthStateChange,
   builder: (context, snapshot) {
-    if (snapshot.data?.event == AuthChangeEvent.signedIn) return const HomePage();
-    return const LoginPage();
+    if (snapshot.hasData) {
+      final event = snapshot.data!.event;
+      if (event == AuthChangeEvent.signedIn) return const HomePage();
+      if (event == AuthChangeEvent.signedOut) return const LoginPage();
+    }
+    final currentSession = Supabase.instance.client.auth.currentSession;
+    return currentSession != null ? const HomePage() : const LoginPage();
   },
 )
 ```
@@ -254,8 +352,6 @@ StreamBuilder<AuthState>(
 ---
 
 ## Detail Page
-
-> Saya jelaskan alur disini ◝(ᵔᗜᵔ)◜
 
 Halaman detail bisa diakses dengan klik kartu buku. Menampilkan judul, penulis, genre, progress membaca, rating, dan catatan. Tersedia tombol edit (ikon pensil di AppBar) dan hapus buku. Fitur hapus sengaja tidak dibuat mencolok agar fokus tetap pada isi buku.
 
@@ -267,18 +363,36 @@ Halaman detail bisa diakses dengan klik kartu buku. Menampilkan judul, penulis, 
 <summary>Deskripsi Implementasi Widget</summary>
 
 ### 1. `OutlinedButton`
-Tombol hapus buku dengan border merah tanpa fill — membedakannya secara visual dari aksi primer.
+Tombol hapus buku dengan border merah tanpa fill — membedakannya secara visual dari aksi primer agar tidak mencolok.
 ```dart
 OutlinedButton.icon(
   onPressed: () => _konfirmasiHapus(context, book),
   style: OutlinedButton.styleFrom(
     foregroundColor: Colors.redAccent,
     side: const BorderSide(color: Colors.redAccent),
+    padding: const EdgeInsets.symmetric(vertical: 14),
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
   ),
   icon: const Icon(Icons.delete_outline),
-  label: const Text('Hapus Buku'),
+  label: const Text('Hapus Buku', style: TextStyle(fontWeight: FontWeight.bold)),
 ),
+```
+
+### 2. `Divider`
+Pemisah visual antara informasi judul/genre dengan konten detail (progress, rating, catatan).
+```dart
+Divider(color: scheme.onSurface.withValues(alpha: 0.1)),
+```
+
+### 3. Guard `bookIndex == -1`
+Menggunakan `addPostFrameCallback` untuk auto-pop jika buku sudah dihapus saat `DetailPage` masih terbuka — mencegah crash `firstWhere`.
+```dart
+if (bookIndex == -1) {
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    if (Navigator.canPop(context)) Navigator.pop(context);
+  });
+  return Scaffold(backgroundColor: scheme.surface);
+}
 ```
 
 </details>
@@ -287,9 +401,7 @@ OutlinedButton.icon(
 
 ## Form Page
 
-> Saya jelaskan alur disini („• ֊ •„)੭
-
-Halaman form bisa diakses dari fitur edit di halaman detail atau dari tombol tambah buku. Terdapat 6 `TextField` dengan validasi. Data langsung disimpan ke Supabase saat tombol **Tambah ke Koleksi** atau **Simpan Perubahan** ditekan. Saya mengatur agar tetap bisa memberi rating walaupun belum 100% selesai membaca.
+Halaman form bisa diakses dari fitur edit di halaman detail atau dari tombol tambah buku. Terdapat 6 `TextField` dengan validasi. Data langsung disimpan ke Supabase saat tombol **Tambah ke Koleksi** atau **Simpan Perubahan** ditekan.
 
 | Tampilan | Tampilan Isi | Validasi (1) | Validasi (2) | POV Fitur Edit | Balik ke Home Page |
 |----------|------------|-----------|-----------|-----------|-----------|
@@ -299,7 +411,7 @@ Halaman form bisa diakses dari fitur edit di halaman detail atau dari tombol tam
 <summary>Deskripsi Implementasi Widget</summary>
 
 ### 1. `StatefulWidget`
-Digunakan untuk `FormPage` karena perlu menyimpan state lokal — isi controller, daftar genre, dan nilai rating yang berubah saat pengguna mengisi form.
+Digunakan untuk `FormPage` karena perlu menyimpan state lokal — isi controller, daftar genre, nilai rating, dan status `_isSaving` yang berubah saat pengguna mengisi dan menyimpan form.
 ```dart
 class FormPage extends StatefulWidget {
   final Book? bookToEdit;
@@ -315,26 +427,35 @@ Mendeteksi tap pada bintang rating dan tombol `+` genre. Lebih ringan dari `InkW
 ```dart
 GestureDetector(
   onTap: () => setState(() => _rating = i + 1.0),
-  child: Icon(
-    i < _rating ? Icons.star : Icons.star_border,
-    color: const Color(0xFFFFD700),
-    size: 34,
+  child: Padding(
+    padding: const EdgeInsets.only(right: 8),
+    child: Icon(
+      i < _rating ? Icons.star : Icons.star_border,
+      color: const Color(0xFFFFD700),
+      size: 34,
+    ),
   ),
 ),
 ```
 
 ### 3. `ElevatedButton`
-Tombol utama simpan data dengan background `scheme.primary` sebagai aksi paling menonjol.
+Tombol utama simpan data dengan background `scheme.primary`. Saat `_isSaving` bernilai `true`, tombol di-disable dan menampilkan `CircularProgressIndicator` agar tidak bisa ditekan dua kali.
 ```dart
 ElevatedButton(
   onPressed: _isSaving ? null : _simpan,
-  style: ElevatedButton.styleFrom(backgroundColor: scheme.primary),
-  child: Text(_isEditing ? 'Simpan Perubahan' : 'Tambah ke Koleksi'),
+  style: ElevatedButton.styleFrom(
+    backgroundColor: scheme.primary,
+    disabledBackgroundColor: scheme.primary.withValues(alpha: 0.5),
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+  ),
+  child: _isSaving
+      ? const CircularProgressIndicator(color: Colors.white, strokeWidth: 2)
+      : Text(_isEditing ? 'Simpan Perubahan' : 'Tambah ke Koleksi'),
 ),
 ```
 
 ### 4. `TextFormField` & `Form`
-6 input dengan validasi terintegrasi. `GlobalKey<FormState>` memicu validasi semua field sekaligus.
+6 input dengan validasi terintegrasi. `GlobalKey<FormState>` memicu validasi semua field sekaligus saat simpan ditekan.
 
 | # | Field | Tipe | Validasi |
 |---|-------|------|---------|
@@ -347,7 +468,26 @@ ElevatedButton(
 ```dart
 final _formKey = GlobalKey<FormState>();
 
+// Validasi semua field sekaligus
 if (!_formKey.currentState!.validate()) return;
+
+// Validasi manual genre dan halaman
+if (_genres.isEmpty) { _showSnackbar('Tambahkan minimal satu genre!', isError: true); return; }
+if (total <= 0) { _showSnackbar('Total halaman wajib diisi!', isError: true); return; }
+if (current > total) { _showSnackbar('Halaman sekarang tidak boleh melebihi total!', isError: true); return; }
+```
+
+### 5. `Chip`
+Menampilkan genre yang sudah ditambahkan sebagai chip yang bisa dihapus satu per satu.
+```dart
+Chip(
+  label: Text(g, style: TextStyle(color: scheme.onSurface, fontSize: 12)),
+  backgroundColor: scheme.primary.withValues(alpha: 0.2),
+  side: BorderSide(color: scheme.primary, width: 1),
+  deleteIcon: Icon(Icons.close, size: 14, color: scheme.onSurface.withValues(alpha: 0.5)),
+  onDeleted: () => setState(() => _genres.remove(g)),
+  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+),
 ```
 
 </details>
@@ -361,3 +501,55 @@ Halaman login dan register menggunakan **Supabase Auth**. Setiap user hanya bisa
 | Login | Register |
 |-------|---------|
 | <img src="https://github.com/user-attachments/assets/699abe7f-374f-4ebf-8a73-6d3b568e4275" width="150" /> | <img src="https://github.com/user-attachments/assets/41809fff-c26e-4abe-aefb-04c6bf7945a8" width="150"/> |
+
+<details>
+<summary>Deskripsi Implementasi Widget</summary>
+
+### 1. `SafeArea` & `SingleChildScrollView`
+`SafeArea` memastikan konten tidak tertutup status bar atau notch. `SingleChildScrollView` memungkinkan form di-scroll saat keyboard muncul.
+```dart
+SafeArea(
+  child: Center(
+    child: SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(horizontal: 28),
+      child: Form(...),
+    ),
+  ),
+),
+```
+
+### 2. `StreamBuilder` & `AuthGate`
+Mendengarkan perubahan auth state Supabase secara real-time. Saat login berhasil otomatis pindah ke `HomePage`, saat logout otomatis kembali ke `LoginPage`.
+```dart
+StreamBuilder<AuthState>(
+  stream: Supabase.instance.client.auth.onAuthStateChange,
+  builder: (context, snapshot) {
+    if (snapshot.hasData) {
+      final event = snapshot.data!.event;
+      if (event == AuthChangeEvent.signedIn) return const HomePage();
+      if (event == AuthChangeEvent.signedOut) return const LoginPage();
+    }
+    final currentSession = Supabase.instance.client.auth.currentSession;
+    return currentSession != null ? const HomePage() : const LoginPage();
+  },
+)
+```
+
+### 3. `TextButton`
+Digunakan untuk link navigasi antar halaman auth ("Daftar" dan "Login") agar kursor berubah jadi jari saat dihover — lebih interaktif dari `GestureDetector`.
+```dart
+TextButton(
+  onPressed: () => Navigator.push(
+    context,
+    MaterialPageRoute(builder: (_) => const RegisterPage()),
+  ),
+  style: TextButton.styleFrom(
+    padding: EdgeInsets.zero,
+    minimumSize: Size.zero,
+    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+  ),
+  child: Text('Daftar', style: TextStyle(color: scheme.primary, fontWeight: FontWeight.bold)),
+),
+```
+
+</details>
