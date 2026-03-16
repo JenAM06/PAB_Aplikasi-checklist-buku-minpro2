@@ -71,6 +71,50 @@ lib/
     └── register_page.dart     ← Halaman registrasi
 ```
 
+Contoh alur saat menambah buku:
+
+```
+FormPage
+   ↓
+BookProvider.addBook()
+   ↓
+BookService.addBook()
+   ↓
+Supabase Database
+```
+
+## Database Schema
+
+Aplikasi menggunakan **Supabase PostgreSQL** sebagai backend database.
+
+### Table: `books`
+
+| Column | Type | Description |
+|------|------|-------------|
+| id | uuid | Primary key buku |
+| title | text | Judul buku |
+| author | text | Nama penulis |
+| genres | text | Daftar genre dalam format JSON |
+| notes | text | Catatan atau ulasan buku |
+| rating | float | Rating buku dari 1 sampai 5 |
+| total_pages | integer | Total halaman buku |
+| current_page | integer | Halaman yang sudah dibaca |
+| user_id | uuid | ID user pemilik buku |
+| created_at | timestamp | Waktu buku ditambahkan |
+
+### Relasi Data
+
+Setiap buku terhubung dengan **user Supabase** melalui kolom `user_id`.
+
+```
+User (Supabase Auth)
+      │
+      └── user_id
+            │
+            ▼
+          books
+```
+
 ---
 
 ## Fitur Aplikasi
