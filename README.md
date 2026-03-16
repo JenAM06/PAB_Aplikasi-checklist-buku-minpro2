@@ -119,26 +119,26 @@ User (Supabase Auth)
 
 ## Fitur Aplikasi
 
-| # | Fitur | Status | Lokasi |
-|---|-------|--------|--------|
-| 1 | Tambah buku baru ke Supabase | ✅ | `form_page.dart` → `_simpan()` |
-| 2 | Tampilkan daftar buku dari Supabase | ✅ | `home_page.dart` → `fetchBooks()` |
-| 3 | Edit buku yang ada | ✅ | `form_page.dart` → `_isEditing` |
-| 4 | Hapus buku (dengan konfirmasi) | ✅ | `home_page.dart`, `detail_page.dart` → `_konfirmasiHapus()` |
-| 5 | Login menggunakan Supabase Auth | ✅ | `login_page.dart` |
-| 6 | Register akun baru | ✅ | `register_page.dart` |
-| 7 | Logout | ✅ | `home_page.dart` → `_logout()` |
-| 8 | Data per user (RLS) | ✅ | `book_service.dart` → filter `user_id` |
-| 9 | Lacak progress membaca | ✅ | `book.dart` → `progress` getter |
-| 10 | Progress bar visual | ✅ | `home_page.dart`, `detail_page.dart` → `LinearProgressIndicator` |
-| 11 | Tag genre (multi-genre) | ✅ | `form_page.dart` → `_tambahGenre()` |
-| 12 | Rating bintang (1–5) | ✅ | `form_page.dart`, `detail_page.dart` |
-| 13 | Catatan / ulasan buku | ✅ | `form_page.dart` → `_notesCtrl` |
-| 14 | Light Mode & Dark Mode | ✅ | `theme_provider.dart`, `main.dart` |
-| 15 | Konfigurasi `.env` | ✅ | `.env` → `SUPABASE_URL`, `SUPABASE_ANON_KEY` |
-| 16 | Auto-pop saat buku dihapus | ✅ | `detail_page.dart` → `addPostFrameCallback` |
-| 17 | Empty state (belum ada buku) | ✅ | `home_page.dart` → `books.isEmpty` |
-| 18 | Loading & error state | ✅ | `home_page.dart` → `isLoading`, `errorMessage` |
+| # | Fitur | Lokasi |
+|---|-------|--------|
+| 1 | Tambah buku baru ke Supabase | `form_page.dart` → `_simpan()` |
+| 2 | Tampilkan daftar buku dari Supabase | `home_page.dart` → `fetchBooks()` |
+| 3 | Edit buku yang ada | `form_page.dart` → `_isEditing` |
+| 4 | Hapus buku (dengan konfirmasi) | `home_page.dart`, `detail_page.dart` → `_konfirmasiHapus()` |
+| 5 | Login menggunakan Supabase Auth | `login_page.dart` |
+| 6 | Register akun baru | `register_page.dart` |
+| 7 | Logout |  `home_page.dart` → `_logout()` |
+| 8 | Data per user (RLS) |  `book_service.dart` → filter `user_id` |
+| 9 | Lacak progress membaca |  `book.dart` → `progress` getter |
+| 10 | Progress bar visual |  `home_page.dart`, `detail_page.dart` → `LinearProgressIndicator` |
+| 11 | Tag genre (multi-genre) |  `form_page.dart` → `_tambahGenre()` |
+| 12 | Rating bintang (1–5) |  `form_page.dart`, `detail_page.dart` |
+| 13 | Catatan / ulasan buku |  `form_page.dart` → `_notesCtrl` |
+| 14 | Light Mode & Dark Mode |  `theme_provider.dart`, `main.dart` |
+| 15 | Konfigurasi `.env` |  `.env` → `SUPABASE_URL`, `SUPABASE_ANON_KEY` |
+| 16 | Auto-pop saat buku dihapus |  `detail_page.dart` → `addPostFrameCallback` |
+| 17 | Empty state (belum ada buku) | `home_page.dart` → `books.isEmpty` |
+| 18 | Loading & error state | `home_page.dart` → `isLoading`, `errorMessage` |
 
 ---
 
@@ -168,9 +168,18 @@ User (Supabase Auth)
 
 Pada tampilan awal, terdapat AppBar dengan nama aplikasi, tombol toggle tema, dan tombol logout. Jika belum ada buku, tampil pesan empty state. Klik tombol `+` **Tambah Buku** untuk membuka `Form Page` (fitur `Create`). Buku yang berhasil ditambahkan langsung muncul di daftar. Setiap kartu menampilkan judul, penulis, genre, rating, dan progress membaca. Klik ikon tong sampah untuk **hapus buku** dengan konfirmasi dialog.
 
+**Dark Mode**
+
 | Kosongan | Tambah Buku | Hapus Buku |
 |----------|------------|-----------|
-| <img src="https://github.com/user-attachments/assets/d0c935ac-445b-4400-956a-e366cdb3cec5" width="150"/> | <img src="https://github.com/user-attachments/assets/ab4e424f-5443-40a4-8c95-2ca352880fc5" width="150"/> | <img src="https://github.com/user-attachments/assets/8ae6f8d4-efdb-490c-bc00-7420fd13025b" width="150"/> |
+|<img src="https://github.com/user-attachments/assets/a9522f62-b465-41fd-9f6f-94ad1e21416d" width="150"/>|<img src="https://github.com/user-attachments/assets/dfde4956-210a-403e-bed2-a4520ca5cafc" width="150"/>| <img src="https://github.com/user-attachments/assets/5272bf5c-836a-4df1-9131-9d61c9f505de" width="150"/> |
+
+**Light Mode**
+
+| Kosongan | Tambah Buku | Hapus Buku |
+|----------|------------|-----------|
+|<img src="https://github.com/user-attachments/assets/5303bc6d-8f99-4a3a-b2f6-d30125547fe0" width="150"/>|<img src="https://github.com/user-attachments/assets/e2577d29-9abf-4927-b045-7689d6644ac3" width="150"/>| <img src="https://github.com/user-attachments/assets/59fd4859-2a28-4883-947c-4afa1a4391d9" width="150"/> |
+
 
 <details>
 <summary>Deskripsi Implementasi Widget</summary>
@@ -399,9 +408,17 @@ StreamBuilder<AuthState>(
 
 Halaman detail bisa diakses dengan klik kartu buku. Menampilkan judul, penulis, genre, progress membaca, rating, dan catatan. Tersedia tombol edit (ikon pensil di AppBar) dan hapus buku. Fitur hapus sengaja tidak dibuat mencolok agar fokus tetap pada isi buku.
 
+**Dark Mode**
+
 | Tampilan | Tampilan Hapus | Hapus Buku | Balik Home Page |
 |----------|------------|-----------|-----------|
-| <img src="https://github.com/user-attachments/assets/2fcc1426-614c-4763-a627-43fd344a3d9e" width="150"/> | <img src="https://github.com/user-attachments/assets/f0474134-5e7a-423e-8d9c-49a0b9d189bd" width="150"/> | <img src="https://github.com/user-attachments/assets/79591258-6ba1-41f3-9874-b1fd379c1a29" width="150"/> | <img src="https://github.com/user-attachments/assets/5e953e1b-c4c5-4b60-b9b2-fcfa168dc831" width="150"/> |
+|<img src="https://github.com/user-attachments/assets/2bcb68a3-ca49-40ad-ad27-a01646b7e0db" width="150"/> | <img src="https://github.com/user-attachments/assets/6cf25d29-331c-48fb-b7ca-6a2e8c779414" width="150"/> | <img src="https://github.com/user-attachments/assets/41a81209-caeb-4f9d-9b8c-50091bc79c1a" width="150"/> | <img src="https://github.com/user-attachments/assets/5e953e1b-c4c5-4b60-b9b2-fcfa168dc831" width="150"/> |
+
+**Light Mode**
+
+| Tampilan | Tampilan Hapus | Hapus Buku | Balik Home Page |
+|----------|------------|-----------|-----------|
+|<img src="https://github.com/user-attachments/assets/ee33cf9a-b2cc-4d83-8c31-ab0e6c1541fe" width="150"/> | <img src="https://github.com/user-attachments/assets/8fa63159-ff5b-4572-b976-d18e073a3fff" width="150"/> |<img src="https://github.com/user-attachments/assets/4c0606b2-5913-45d9-b5de-9511968f2c45" width="150"/> | <img src="https://github.com/user-attachments/assets/5303bc6d-8f99-4a3a-b2f6-d30125547fe0" width="150"/> |
 
 <details>
 <summary>Deskripsi Implementasi Widget</summary>
@@ -445,11 +462,24 @@ if (bookIndex == -1) {
 
 ## Form Page
 
-Halaman form bisa diakses dari fitur edit di halaman detail atau dari tombol tambah buku. Terdapat 6 `TextField` dengan validasi. Data langsung disimpan ke Supabase saat tombol **Tambah ke Koleksi** atau **Simpan Perubahan** ditekan.
+Halaman `form` bisa diakses dari fitur `edit` di halaman `detail` atau dari tombol tambah buku. Terdapat 6 `TextFields` yang diisi (detailnya ada pada deskripsi widget) dan 2 fitur unik yaitu progres membaca dan rating bintang. Bar persen pada `card` di halaman page berasal dari jumlah halaman yang sudah kita baca dari total halaman buku, berguna jika kehilangan penanda buku atau sekedar melihat progres membaca. Data langsung disimpan ke Supabase saat tombol **Tambah ke Koleksi** atau **Simpan Perubahan** ditekan. Berikut penjelasan validasinya:
+1. _User_ harus Memasukkan nama dan penulisnya
+2. _User_ harus memasukkan minimal 1 genre/jenis bukunya
+3. _User_ tidak bisa _input_ jumlah halaman yang sudah dia baca melebihi total halaman buku
+4. _User_ harus _input_ total halaman buku tapi tidak masalah jika belum ada jumlah halaman yang sudah dibaca karena bisa saja buku yang dimilliki belum dibaca atau terbungkus jadi _user_ hanya ingin memasukkan ke dalam list di aplikasi saja
+5. Saya mengatur agar tetap bisa memberi rating walaupun belum 100% selesai membaca untuk mempertimbangkan jika sudah tidak ingin melanjutkan buku tersebut dan menaruh alasannya di catatan.
 
-| Tampilan | Tampilan Isi | Validasi (1) | Validasi (2) | POV Fitur Edit | Balik ke Home Page |
+**Dark Mode**
+
+| Tampilan | Validasi (1) | Validasi (2) | Validasi (3) | Validasi (4) | POV Fitur Edit |
 |----------|------------|-----------|-----------|-----------|-----------|
-| <img src="https://github.com/user-attachments/assets/2d9a4e9e-f37d-4a4e-9eae-c89c8d032586" width="150"/> | <img src="https://github.com/user-attachments/assets/7b339667-a1b6-48a6-98de-6632ef3898b6" width="150"/> | <img src="https://github.com/user-attachments/assets/29bce5db-6fbf-4bbe-a2f0-a2a4602af254" width="150"/> | <img src="https://github.com/user-attachments/assets/d0bda3e3-6ded-4306-92d6-d7354693b3a4" width="150"/> | <img src="https://github.com/user-attachments/assets/73b67212-1e6e-4374-9279-4d8b534365dc" width="150"/> | <img src="https://github.com/user-attachments/assets/b1107d22-0922-49bd-a631-22659a6c3ec4" width="150"/> |
+|<img src="https://github.com/user-attachments/assets/1576b80c-0e87-4857-b73c-738de2a2dcf8" width="150"/> | <img src="https://github.com/user-attachments/assets/5373132e-fef2-4b78-b5d5-fb54d3f9fce5" width="150"/> | <img src="https://github.com/user-attachments/assets/ad9b2260-31eb-4d70-9c37-5ee970dd150c" width="150"/> | <img src="https://github.com/user-attachments/assets/049a05be-0e9e-4577-bb01-18265f34bc69" width="150"/> | <img src="https://github.com/user-attachments/assets/634ea078-b63b-4a5c-bb80-1b4e2fe4b595" width="150"/> | <img src="https://github.com/user-attachments/assets/3606ed22-fb40-4fab-90bc-839ab79a2146" width="150"/> |
+
+**Light Mode**
+
+| Tampilan | Validasi (1) | Validasi (2) | Validasi (3) | Validasi (4) | POV Fitur Edit |
+|----------|------------|-----------|-----------|-----------|-----------|
+| <img src="https://github.com/user-attachments/assets/faa9e459-0257-4499-9d8e-17a896f9b607" width="150"/>| <img src="https://github.com/user-attachments/assets/4584b32f-9598-4c0b-9212-38803c44728a" width="150"/> | <img src="https://github.com/user-attachments/assets/b8e90cda-4b5b-40c9-8313-ebb123cacae7" width="150"/> | <img src="https://github.com/user-attachments/assets/18a1cfb3-e46b-460f-8d02-6093ff94702d" width="150"/> | <img src="https://github.com/user-attachments/assets/fcde1294-c395-4fa5-9f2c-a496c4b5a15a" width="150"/> | <img src="https://github.com/user-attachments/assets/f595fab6-77a4-4e2f-b321-fad32fc8d291" width="150"/> |
 
 <details>
 <summary>Deskripsi Implementasi Widget</summary>
