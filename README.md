@@ -6,7 +6,7 @@
 
 Aplikasi manajemen koleksi buku pribadi untuk mencatat, melacak progress membaca, dan memberikan rating pada setiap buku yang dimiliki.
 
-> Jen Agresia Misti | 2409116007 | A'24 | MINPRO 2 PAB\
+> Jen Agresia Misti | 2409116007 | A'24 | MINPRO 2 PAB
 
 ---
 
