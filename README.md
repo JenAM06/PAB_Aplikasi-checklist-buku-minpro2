@@ -360,4 +360,4 @@ Halaman login dan register menggunakan **Supabase Auth**. Setiap user hanya bisa
 
 | Login | Register |
 |-------|---------|
-| *(screenshot)* | *(screenshot)* |
+| <img src="https://github.com/user-attachments/assets/699abe7f-374f-4ebf-8a73-6d3b568e4275" width="150" /> | <img src="https://github.com/user-attachments/assets/41809fff-c26e-4abe-aefb-04c6bf7945a8" width="150"/> |
