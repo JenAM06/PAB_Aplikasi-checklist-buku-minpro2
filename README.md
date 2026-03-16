@@ -496,7 +496,7 @@ Chip(
 
 ## Login & Register Page
 
-Halaman login dan register menggunakan **Supabase Auth**. Setiap user hanya bisa melihat dan mengelola buku miliknya sendiri (Row Level Security). Tersedia toggle Light/Dark Mode di setiap halaman auth.
+Saat pertama membuka aplikasi, user akan diarahkan ke halaman **Login**. Jika belum punya akun, klik **Daftar** untuk ke halaman Register. Setelah registrasi berhasil, kembali ke halaman login dan masuk menggunakan email dan password yang sudah didaftarkan. Setiap user hanya bisa melihat dan mengelola buku miliknya sendiri berkat **Row Level Security** di Supabase. Tersedia toggle Light/Dark Mode di setiap halaman auth. Untuk keluar dari akun, klik tombol logout di AppBar halaman utama.
 
 | Login | Register |
 |-------|---------|
