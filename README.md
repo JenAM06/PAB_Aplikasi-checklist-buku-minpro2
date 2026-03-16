@@ -4,9 +4,9 @@
 ![Dart](https://img.shields.io/badge/Dart-0175C2?style=flat&logo=dart&logoColor=white)
 ![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=flat&logo=supabase&logoColor=white)
 
-Aplikasi manajemen koleksi buku pribadi untuk mencatat, melacak progress membaca, dan memberikan rating pada setiap buku yang dimiliki. Data disimpan dan diambil dari database **Supabase** secara real-time.
+Aplikasi manajemen koleksi buku pribadi untuk mencatat, melacak progress membaca, dan memberikan rating pada setiap buku yang dimiliki.
 
-> Jen Agresia Misti | 2409116007 | A'24 | MINPRO 1 PAB
+> Jen Agresia Misti | 2409116007 | A'24 | MINPRO 2 PAB
 
 ---
 
@@ -479,7 +479,7 @@ Halaman `form` bisa diakses dari fitur `edit` di halaman `detail` atau dari tomb
 
 | Tampilan | Validasi (1) | Validasi (2) | Validasi (3) | Validasi (4) | POV Fitur Edit |
 |----------|------------|-----------|-----------|-----------|-----------|
-| <img src="https://github.com/user-attachments/assets/faa9e459-0257-4499-9d8e-17a896f9b607" width="150"/>| <img src="https://github.com/user-attachments/assets/4584b32f-9598-4c0b-9212-38803c44728a" width="150"/> | <img src="https://github.com/user-attachments/assets/b8e90cda-4b5b-40c9-8313-ebb123cacae7" width="150"/> | <img src="https://github.com/user-attachments/assets/18a1cfb3-e46b-460f-8d02-6093ff94702d" width="150"/> | <img src="https://github.com/user-attachments/assets/fcde1294-c395-4fa5-9f2c-a496c4b5a15a" width="150"/> | <img src="https://github.com/user-attachments/assets/f595fab6-77a4-4e2f-b321-fad32fc8d291" width="150"/> |
+| <img src="https://github.com/user-attachments/assets/faa9e459-0257-4499-9d8e-17a896f9b607" width="150"/>| <img src="https://github.com/user-attachments/assets/4584b32f-9598-4c0b-9212-38803c44728a" width="150"/> | <img src="https://github.com/user-attachments/assets/b8e90cda-4b5b-40c9-8313-ebb123cacae7" width="150"/> | <img src="https://github.com/user-attachments/assets/18a1cfb3-e46b-460f-8d02-6093ff94702d" width="150"/> | <img src="https://github.com/user-attachments/assets/fcde1294-c395-4fa5-9f2c-a496c4b5a15a" width="150"/> | <img src="https://github.com/user-attachments/assets/6da73393-d70f-48b9-950a-cd52fe9cf3ec" width="150"/> |
 
 <details>
 <summary>Deskripsi Implementasi Widget</summary>
@@ -572,9 +572,17 @@ Chip(
 
 Saat pertama membuka aplikasi, user akan diarahkan ke halaman **Login**. Jika belum punya akun, klik **Daftar** untuk ke halaman Register. Setelah registrasi berhasil, kembali ke halaman login dan masuk menggunakan email dan password yang sudah didaftarkan. Setiap user hanya bisa melihat dan mengelola buku miliknya sendiri berkat **Row Level Security** di Supabase. Tersedia toggle Light/Dark Mode di setiap halaman auth. Untuk keluar dari akun, klik tombol logout di AppBar halaman utama.
 
-| Login | Register |
-|-------|---------|
-| <img src="https://github.com/user-attachments/assets/699abe7f-374f-4ebf-8a73-6d3b568e4275" width="150" /> | <img src="https://github.com/user-attachments/assets/41809fff-c26e-4abe-aefb-04c6bf7945a8" width="150"/> |
+**Dark mode**
+
+| Login | Register | Validasi (1)| Validasi (2)|
+|-------|---------|---------|---------|
+| <img src="https://github.com/user-attachments/assets/699abe7f-374f-4ebf-8a73-6d3b568e4275" width="150" /> | <img src="https://github.com/user-attachments/assets/41809fff-c26e-4abe-aefb-04c6bf7945a8" width="150"/> | <img src="https://github.com/user-attachments/assets/c3d96317-b745-4eb2-8500-74a898764576" width="150"/>| <img src="https://github.com/user-attachments/assets/a5b71d24-a39e-433b-8705-b7b1c403368b" width="150"/>|
+
+**Light Mode**
+
+| Login | Register | Validasi (1)| Validasi (2)|
+|-------|---------|---------|---------|
+| <img src="https://github.com/user-attachments/assets/98009bff-2903-4e2a-8d59-6e62b9fc4fae" width="150" /> | <img src="https://github.com/user-attachments/assets/c579d19c-84a8-432a-936b-2f23517d18f8" width="150"/> | <img src="https://github.com/user-attachments/assets/84739167-dcf5-4c51-8690-2fd4536e8baf" width="150"/>| <img src="https://github.com/user-attachments/assets/a5b71d24-a39e-433b-8705-b7b1c403368b" width="150"/>|
 
 <details>
 <summary>Deskripsi Implementasi Widget</summary>
